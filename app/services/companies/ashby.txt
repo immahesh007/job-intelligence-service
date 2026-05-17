@@ -1,0 +1,20 @@
+OpenAI
+Anthropic
+Perplexity
+Cohere
+Cursor
+Mercor
+Decagon
+Harvey
+Runway
+Mistral AI
+Pinecone
+Glean
+Character.AI
+Weights & Biases
+Replit
+Modal
+LangChain
+ElevenLabs
+Abridge
+Hebbia

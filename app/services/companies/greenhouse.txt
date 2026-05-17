@@ -1,0 +1,20 @@
+Stripe
+Databricks
+Notion
+Figma
+Canva
+HubSpot
+Shopify
+Cloudflare
+MongoDB
+Confluent
+HashiCorp
+Twilio
+Elastic
+Vercel
+DigitalOcean
+Postman
+Cockroach Labs
+Plaid
+Scale AI
+Snyk
