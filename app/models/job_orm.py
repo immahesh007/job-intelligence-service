@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, Index, String, Text, UniqueConstraint, func
+from sqlalchemy import ARRAY, JSON, DateTime, Index, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -26,6 +26,8 @@ class Job(Base):
     department: Mapped[str | None] = mapped_column(String(256), nullable=True)
     company: Mapped[str | None] = mapped_column(String(256), nullable=True)
     posted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    skills: Mapped[list[str] | None] = mapped_column(ARRAY(String(64)), nullable=True)
+    seniority_level: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
 
     raw_data: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
 
@@ -44,4 +46,9 @@ class Job(Base):
         UniqueConstraint("provider", "external_id", name="uq_job_provider_external"),
         Index("ix_jobs_active_company", "is_active", "company"),
         Index("ix_jobs_provider_company", "provider", "company"),
+        Index("ix_jobs_location", "location"),
+        Index("ix_jobs_department", "department"),
+        Index("ix_jobs_skills", "skills", postgresql_using="gin"),
+        Index("ix_jobs_location_department", "location", "department"),
+        Index("ix_jobs_department_seniority", "department", "seniority_level"),
     )

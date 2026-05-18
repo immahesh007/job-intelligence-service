@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import insert
 from app.db import async_session
 from app.models.job import RawJob
 from app.models.job_orm import Job
+from app.services.extractor import extract_seniority, extract_skills
 
 
 async def upsert_jobs(provider: str, company: str, raw_jobs: list[RawJob]) -> dict:
@@ -55,6 +56,8 @@ async def upsert_jobs(provider: str, company: str, raw_jobs: list[RawJob]) -> di
                     "department": stmt.excluded.department,
                     "company": stmt.excluded.company,
                     "posted_at": stmt.excluded.posted_at,
+                    "skills": stmt.excluded.skills,
+                    "seniority_level": stmt.excluded.seniority_level,
                     "raw_data": stmt.excluded.raw_data,
                     "last_seen_at": func_now(),
                     "updated_at": func_now(),
@@ -110,6 +113,8 @@ def _job_to_row(provider: str, job: RawJob) -> dict:
         "department": job.department,
         "company": job.company,
         "posted_at": job.posted_at,
+        "skills": extract_skills(job.title, job.description) or None,
+        "seniority_level": extract_seniority(job.title, job.description),
         "raw_data": job.raw_data,
         "is_active": True,
     }
