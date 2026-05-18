@@ -1,5 +1,7 @@
 import re
 
+from app.services.matching.taxonomy.aliases import SKILL_ALIASES, resolve_skill as _resolve_from_taxonomy
+
 # ---------------------------------------------------------------------------
 # Skills taxonomy — grouped by category for readability
 # ---------------------------------------------------------------------------
@@ -80,7 +82,10 @@ _SKILL_CATEGORIES: dict[str, set[str]] = {
 # Build lookup structures
 # ---------------------------------------------------------------------------
 
-# Display names (for multi-word/normalized mapping)
+# Alias map is now sourced from the shared taxonomy module.
+# Legacy alias map kept for extractor-internal multi-word canonicalization
+# that differs from the taxonomy (e.g., "machine learning" → "ml" for extraction,
+# while taxonomy keeps "machine learning" for matching).
 _ALIAS_MAP: dict[str, str] = {
     "golang": "go",
     "k8s": "kubernetes",
@@ -101,6 +106,10 @@ _ALIAS_MAP: dict[str, str] = {
     "neural network": "neural network",
     "gradient boosting": "gradient boosting",
 }
+
+# Merge taxonomy aliases into extractor's alias map for consistency.
+# Taxonomy aliases take precedence for matching consistency.
+_ALIAS_MAP.update(SKILL_ALIASES)
 
 # All unique skill strings (lowercase)
 ALL_SKILLS: set[str] = set()
@@ -138,7 +147,13 @@ _YEARS_PATTERN = re.compile(r"(\d+)[\+]*\s*years?", re.IGNORECASE)
 
 
 def _resolve_skill(name: str) -> str:
-    """Return canonical display name for a matched skill."""
+    """Return canonical display name for a matched skill.
+
+    First checks the shared taxonomy, then the extractor-local alias map.
+    """
+    resolved = _resolve_from_taxonomy(name)
+    if resolved != name:
+        return resolved
     return _ALIAS_MAP.get(name, name)
 
 
